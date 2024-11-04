@@ -118,7 +118,7 @@ export class AppComponent {
     });
     ipcService.on("cli_message", (event, message) => {
       this.settingsService.onLoad((appSettings) => {
-        if (["list", "enable", "disable"].includes(message.command)) {
+        if (["list", "enable", "disable", "import"].includes(message.command)) {
           this.zone.run(() => {
             this.router.navigate(["/parsers", -1], {
               queryParams: {

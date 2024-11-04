@@ -110,6 +110,21 @@ yargs(hideBin(process.argv))
     },
   )
   .command(
+    "import",
+    clc.blue("Import parser configurations from JSON.\nUsage: import [file]"),
+    (yargs: typeof Argv) => {
+      return yargs
+        .positional("files", {
+          describe: clc.blue("JSON file paths with parser configurations."),
+          type: "string",
+        })
+    },
+    (argv: any) => {
+      commandCLI = "import";
+      argsCLI = argv._.slice(1);
+    },
+  )
+  .command(
     "add",
     clc.blue("Run all enabled parsers and save apps to steam.\nUsage: add"),
     (yargs: typeof Argv) => {

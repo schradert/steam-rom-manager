@@ -44,6 +44,7 @@ import {
 import { BehaviorSubject, Subscription, of, concat } from "rxjs";
 import { map } from "rxjs/operators";
 import { APP } from "../../variables";
+import * as fs from "fs-extra";
 import * as _ from "lodash";
 import * as os from "os";
 import {
@@ -876,6 +877,30 @@ export class ParsersComponent implements AfterViewInit, OnDestroy {
                   this.ipcService.send("all_done");
                 });
               }
+            } else if (["import"].includes(parsedCLI.command)) {
+              for (let jsonFile of parsedCLI.args) {
+                fs.readFile(jsonFile, "utf8", (error: any, data: any) => {
+                  if (error) {
+                    this.ipcService.send("log", error);
+                  } else {
+                    try {
+                      const parsed = JSON.parse(data) || [];
+                      const configurations: UserConfiguration[] = Array.isArray(parsed) ? parsed : [parsed];
+                      for (let saved of configurations) {
+                        if (!this.parsersService.isConfigurationValid(saved)) {
+                          this.ipcService.send("log", `User configuration is not valid: ${JSON.stringify(saved)}`);
+                        } else {
+                          const current = userConfigurations.filter(cfg => saved.configTitle == cfg.configTitle).at(0) || null;
+                          this.parsersService.saveConfiguration({ saved, current });
+                        }
+                      }
+                    } catch (e) {
+                      this.ipcService.send("log", e);
+                    }
+                  }
+                });
+              }
+              this.ipcService.send("all_done");
             }
           },
         );
